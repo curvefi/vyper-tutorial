@@ -1,0 +1,7 @@
+# @version 0.3.3
+
+@external
+def mint(quantity: uint256) -> bool:
+    return True
+    
+

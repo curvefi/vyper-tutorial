@@ -1,0 +1,14 @@
+Only in unsolved/contracts: .Minter.vy.swp
+diff unsolved/contracts/Token.vy solved/contracts/Token.vy
+123a124,134
+> 
+> 
+> @external
+> def mint(to_addr: address, amount: uint256):
+>     """
+>     @notice Mint tokens
+>     @param to_addr Address to receive tokens
+>     @param amount Number of tokens to mint
+>     """
+>     self.totalSupply += amount
+>     self.balances[to_addr] += amount

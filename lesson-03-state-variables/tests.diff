@@ -1,0 +1,18 @@
+diff -r ../lesson-02-contract/solved/tests/test_minter.py unsolved/tests/test_minter.py
+6a7,22
+> 
+> 
+> def test_token_balance_updates_on_mint(token, accounts):
+>     quantity = 10**18
+>     init_bal = token.balanceOf(accounts[0])
+> 
+>     token.mint(accounts[0], quantity)
+>     assert token.balanceOf(accounts[0]) == init_bal + quantity
+> 
+> 
+> def test_token_total_supply_updates_on_mint(token, accounts):
+>     quantity = 10**18
+>     init_supply = token.totalSupply()
+> 
+>     token.mint(accounts[0], quantity)
+>     assert token.totalSupply() == init_supply + quantity

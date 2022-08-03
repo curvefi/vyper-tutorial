@@ -1,0 +1,8 @@
+diff -r ../lesson-1-setup/vyper-token/tests/conftest.py unsolved/tests/conftest.py
+15a16,20
+> 
+> 
+> @pytest.fixture(scope="module")
+> def minter(Minter, accounts):
+>     return Minter.deploy({"from": accounts[0]})
+Only in unsolved/tests: test_minter.py
