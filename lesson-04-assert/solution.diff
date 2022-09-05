@@ -1,0 +1,21 @@
+diff solved/contracts/Token.vy unsolved/contracts/Token.vy
+33,34d32
+< owner: public(address)
+< minter: public(address)
+43,44d40
+<     self.owner = msg.sender
+<     self.minter = msg.sender
+137d132
+<     assert self.minter == msg.sender
+140,150d134
+< 
+< 
+< @external
+< def set_minter(minter_addr: address):
+<     """
+<     @notice Update the address allowed to mint a token
+<     @dev Must be called by Contract owner
+<     @param minter_addr Address to become new minter
+<     """
+<     assert self.owner == msg.sender
+<     self.minter = minter_addr
