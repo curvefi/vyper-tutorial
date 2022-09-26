@@ -1,0 +1,26 @@
+diff -r ../lesson-04-assert/solved/tests/conftest.py unsolved/tests/conftest.py
+19,20c19,22
+< def minter(Minter, accounts):
+<     return Minter.deploy({"from": accounts[0]})
+---
+> def minter(Minter, accounts, token):
+>     minter = Minter.deploy(token, {"from": accounts[0]})
+>     token.set_minter(minter, {"from": token.owner()})
+>     return minter
+diff -r ../lesson-04-assert/solved/tests/test_minter.py unsolved/tests/test_minter.py
+9c9
+< def test_token_balance_updates_on_mint(token, accounts):
+---
+> def test_token_balance_updates_on_mint(token, minter, accounts):
+13c13
+<     token.mint(accounts[0], quantity, {"from": token.owner()})
+---
+>     minter.mint(quantity, {"from": accounts[0]})
+17c17
+< def test_token_total_supply_updates_on_mint(token, accounts):
+---
+> def test_token_total_supply_updates_on_mint(token, minter, accounts):
+21c21
+<     token.mint(accounts[0], quantity, {"from": token.owner()})
+---
+>     minter.mint(quantity, {"from": accounts[0]})

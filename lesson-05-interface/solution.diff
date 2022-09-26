@@ -1,0 +1,22 @@
+10a11,15
+> interface Token:
+>     def mint(to_addr: address, amount: uint256): nonpayable
+> 
+> token: public(Token)
+> 
+12c17,21
+< def mint():
+---
+> def __init__(token_addr: address):
+>     self.token = Token(token_addr)
+> 
+> @external
+> def mint(quantity: uint256):
+15c24
+<     @dev This function is intentionally not implemented!
+---
+>     @param quantity Quantity to mint
+17c26
+<     pass
+---
+>     self.token.mint(msg.sender, quantity)
