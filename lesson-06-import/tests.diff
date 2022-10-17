@@ -1,0 +1,31 @@
+diff -r ../lesson-05-interface/solved/tests/conftest.py unsolved/tests/conftest.py
+4c4,5
+< 
+---
+> from brownie_tokens import MintableForkToken
+> from brownie import network
+19,20c20,31
+< def minter(Minter, accounts, token):
+<     minter = Minter.deploy(token, {"from": accounts[0]})
+---
+> def crv(accounts, Token):
+>     if 'fork' in network.show_active():
+>         crv = MintableForkToken('0xD533a949740bb3306d119CC777fa900bA034cd52')
+>         crv._mint_for_testing(accounts[0], 10 ** 18)
+>     else:
+>         crv = Token.deploy("Dummy CRV", "CRV", 18, 10 ** 18, {'from': accounts[0]})
+>     return crv
+> 
+> 
+> @pytest.fixture(scope="module")
+> def minter(Minter, accounts, token, crv):
+>     minter = Minter.deploy(token, crv, {"from": accounts[0]})
+21a33
+>     crv.approve(minter, crv.balanceOf(accounts[0]), {'from': accounts[0]})
+diff -r ../lesson-05-interface/solved/tests/test_minter.py unsolved/tests/test_minter.py
+45a46,50
+> 
+> def test_crv_transfers_on_mint(token, crv, accounts, minter):
+>     init_bal = crv.balanceOf(accounts[0])
+>     minter.mint(10 ** 18, {"from": accounts[0]})
+>     assert crv.balanceOf(accounts[0]) < init_bal

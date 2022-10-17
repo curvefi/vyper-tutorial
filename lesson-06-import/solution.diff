@@ -1,0 +1,35 @@
+diff -r unsolved/contracts/Minter.vy solved/contracts/Minter.vy
+1c1
+< # @version 0.3.3
+---
+> # @version 0.3.7
+11,12c11,12
+< interface Token:
+<     def mint(to_addr: address, amount: uint256): nonpayable
+---
+> import Token as Token
+> from vyper.interfaces import ERC20
+14c14,15
+< token: public(Token)
+---
+> stablecoin: public(Token)       # $crvUSD
+> lending_token: public(ERC20)    # $CRV
+17,18c18,20
+< def __init__(token_addr: address):
+<     self.token = Token(token_addr)
+---
+> def __init__(token_addr: address, lending_token_addr: address):
+>     self.stablecoin = Token(token_addr)
+>     self.lending_token = ERC20(lending_token_addr)
+26c28,31
+<     self.token.mint(msg.sender, quantity)
+---
+>     assert self.lending_token.allowance(msg.sender, self) >= quantity, "Lacks Approval"
+>     assert self.lending_token.balanceOf(msg.sender) >= quantity, "Lacks Balance"
+>     self.lending_token.transferFrom(msg.sender, self, quantity)
+>     self.stablecoin.mint(msg.sender, quantity)
+diff -r unsolved/contracts/Token.vy solved/contracts/Token.vy
+1c1
+< # @version ^0.2.0
+---
+> # @version ^0.3.7
