@@ -25,7 +25,7 @@ Each lesson (except the first) will also contain two diff files, representing th
 * [Lesson 4: Assert](lesson-04-assert/)
 * [Lesson 5: Interface](lesson-05-interface/)
 * [Lesson 6: Import](lesson-06-import/)
-* Lesson 7: Views
+* [Lesson 7: Scope](lesson-07-scope/)
 * Lesson 8: Function Variables
 * Lesson 9: Hashmap
 

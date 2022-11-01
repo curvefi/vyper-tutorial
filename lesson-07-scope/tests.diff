@@ -1,0 +1,16 @@
+diff ../lesson-06-import/solved/tests/conftest.py unsolved/tests/conftest.py
+18d17
+< 
+20c19
+< def crv(accounts, Token):
+---
+> def is_forked():
+21a21,27
+>         return True
+>     else:
+>         return False
+> 
+> @pytest.fixture(scope="module")
+> def crv(accounts, Token, is_forked):
+>     if is_forked:
+Only in unsolved/tests/: test_lend.py
