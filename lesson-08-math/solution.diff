@@ -1,0 +1,35 @@
+28a29,32
+> # Collateralization
+> collateral_pct: public(uint256)
+> 
+> 
+37a42,44
+>     # Collateralization
+>     self.collateral_pct = 10 ** 18 * 4 / 5
+> 
+45a53,60
+> 
+> @internal
+> @view
+> def _get_dy(quantity: uint256) -> uint256:
+>     liq_price: uint256 = self._price_usd() * self.collateral_pct / 10 ** 18
+>     return quantity * liq_price / 10 ** 18
+> 
+> 
+54a70,81
+> 
+> @external
+> @view
+> def get_dy(quantity:uint256) -> uint256:
+>     """
+>     @notice Get amount of USD for a deposit of $CRV 
+>     @param quantity $CRV tokens to deposit
+>     @return Number of $crvUSD returned
+>     """
+>     return self._get_dy(quantity)
+> 
+> 
+65c92
+<     self.stablecoin.mint(msg.sender, quantity)
+---
+>     self.stablecoin.mint(msg.sender, self._get_dy(quantity))

@@ -1,0 +1,145 @@
+diff -r ../lesson-07-scope/solved/tests/conftest.py unsolved/tests/conftest.py
+4d3
+< from brownie_tokens import MintableForkToken
+5a5,6
+> from brownie_tokens import MintableForkToken
+> 
+17a19
+> 
+20c22
+<     if 'fork' in network.show_active():
+---
+>     if "fork" in network.show_active():
+24a27
+> 
+28,29c31,32
+<         crv = MintableForkToken('0xD533a949740bb3306d119CC777fa900bA034cd52')
+<         crv._mint_for_testing(accounts[0], 10 ** 18)
+---
+>         crv = MintableForkToken("0xD533a949740bb3306d119CC777fa900bA034cd52")
+>         crv._mint_for_testing(accounts[0], 10**18)
+31c34
+<         crv = Token.deploy("Dummy CRV", "CRV", 18, 10 ** 18, {'from': accounts[0]})
+---
+>         crv = Token.deploy("Dummy CRV", "CRV", 18, 10**18, {"from": accounts[0]})
+39c42
+<     crv.approve(minter, crv.balanceOf(accounts[0]), {'from': accounts[0]})
+---
+>     crv.approve(minter, crv.balanceOf(accounts[0]), {"from": accounts[0]})
+diff -r ../lesson-07-scope/solved/tests/test_approve.py unsolved/tests/test_approve.py
+12c12
+<     token.approve(accounts[1], 10 ** 19, {"from": accounts[0]})
+---
+>     token.approve(accounts[1], 10**19, {"from": accounts[0]})
+14c14
+<     assert token.allowance(accounts[0], accounts[1]) == 10 ** 19
+---
+>     assert token.allowance(accounts[0], accounts[1]) == 10**19
+18c18
+<     token.approve(accounts[1], 10 ** 19, {"from": accounts[0]})
+---
+>     token.approve(accounts[1], 10**19, {"from": accounts[0]})
+25c25
+<     token.approve(accounts[1], 10 ** 19, {"from": accounts[0]})
+---
+>     token.approve(accounts[1], 10**19, {"from": accounts[0]})
+32c32
+<     token.approve(accounts[0], 10 ** 19, {"from": accounts[0]})
+---
+>     token.approve(accounts[0], 10**19, {"from": accounts[0]})
+34c34
+<     assert token.allowance(accounts[0], accounts[0]) == 10 ** 19
+---
+>     assert token.allowance(accounts[0], accounts[0]) == 10**19
+38c38
+<     token.approve(accounts[1], 10 ** 19, {"from": accounts[0]})
+---
+>     token.approve(accounts[1], 10**19, {"from": accounts[0]})
+44c44
+<     tx = token.approve(accounts[1], 10 ** 19, {"from": accounts[0]})
+---
+>     tx = token.approve(accounts[1], 10**19, {"from": accounts[0]})
+50c50
+<     tx = token.approve(accounts[1], 10 ** 19, {"from": accounts[0]})
+---
+>     tx = token.approve(accounts[1], 10**19, {"from": accounts[0]})
+53c53
+<     assert tx.events["Approval"].values() == [accounts[0], accounts[1], 10 ** 19]
+---
+>     assert tx.events["Approval"].values() == [accounts[0], accounts[1], 10**19]
+diff -r ../lesson-07-scope/solved/tests/test_lend.py unsolved/tests/test_lend.py
+1,2c1,2
+< from brownie import *
+< import requests, json
+---
+> import json
+> 
+3a4,6
+> import requests
+> from brownie import *
+> 
+6c9,10
+<     assert hasattr(minter, 'price_usd')
+---
+>     assert hasattr(minter, "price_usd")
+> 
+12,14c16,18
+<     price = json.loads(requests.get(url).content).get('curve-dao-token').get('usd')
+<     assert (minter.price_usd() / 10 ** 18) > price * .95
+<     assert (minter.price_usd() / 10 ** 18) < price * 1.05
+---
+>     price = json.loads(requests.get(url).content).get("curve-dao-token").get("usd")
+>     assert (minter.price_usd() / 10**18) > price * 0.95
+>     assert (minter.price_usd() / 10**18) < price * 1.05
+diff -r ../lesson-07-scope/solved/tests/test_minter.py unsolved/tests/test_minter.py
+1a2
+> import pytest
+9,10c10,17
+< def test_token_balance_updates_on_mint(token, minter, accounts):
+<     quantity = 10 ** 18
+---
+> def test_get_dy_function_exists(minter):
+>     assert hasattr(minter, "get_dy")
+> 
+> 
+> def test_token_balance_updates_on_mint(token, minter, accounts, is_forked):
+>     if not is_forked:
+>         pytest.skip()
+>     quantity = 10**18
+11a19
+>     dy = minter.get_dy(quantity)
+14c22,23
+<     assert token.balanceOf(accounts[0]) == init_bal + quantity
+---
+>     assert token.balanceOf(accounts[0]) == init_bal + dy
+> 
+15a25,27
+> def test_token_total_supply_updates_on_mint(token, minter, accounts, is_forked):
+>     if not is_forked:
+>         pytest.skip()
+17,18c29
+< def test_token_total_supply_updates_on_mint(token, minter, accounts):
+<     quantity = 10 ** 18
+---
+>     quantity = 10**18
+19a31
+>     dy = minter.get_dy(quantity)
+22c34
+<     assert token.totalSupply() == init_supply + quantity
+---
+>     assert token.totalSupply() == init_supply + dy
+45c57,62
+<         token.mint(hacker, 10 ** 18, {"from": hacker})
+---
+>         token.mint(hacker, 10**18, {"from": hacker})
+> 
+> 
+> def test_crv_transfers_on_mint(token, crv, accounts, minter, is_forked):
+>     if not is_forked:
+>         pytest.skip()
+47d63
+< def test_crv_transfers_on_mint(token, crv, accounts, minter):
+49c65
+<     minter.mint(10 ** 18, {"from": accounts[0]})
+---
+>     minter.mint(10**18, {"from": accounts[0]})
