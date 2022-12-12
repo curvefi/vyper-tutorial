@@ -1,0 +1,29 @@
+23a24,27
+> struct Loan:
+>     liquidation_price: uint256
+>     deposit_amount: uint256
+> 
+38a43
+> open_loan: public(Loan)
+76a82,88
+> @internal
+> @view
+> def _repay_amount() -> uint256:
+>     loan: Loan = self.open_loan
+>     return loan.liquidation_price * loan.deposit_amount / 10 ** 18
+> 
+> 
+101a114,123
+> @external
+> @view
+> def repay_amount() -> uint256:
+>     """
+>     @notice Get repayment amount
+>     @return Amount of tokens required to repay
+>     """
+>     return self._repay_amount()
+> 
+> 
+119a142,143
+>     liq_price: uint256 = self._price_usd() * self.collateral_pct / 10 ** 18
+>     self.open_loan = Loan({liquidation_price: liq_price, deposit_amount: quantity})
