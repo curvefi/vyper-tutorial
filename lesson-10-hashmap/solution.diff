@@ -1,0 +1,47 @@
+diff unsolved/contracts/Minter.vy solved/contracts/Minter.vy
+43c43
+< open_loan: public(Loan)
+---
+> open_loans: public(HashMap[address, Loan])
+84,85c84,85
+< def _repay_amount() -> uint256:
+<     loan: Loan = self.open_loan
+---
+> def _repay_amount(addr: address) -> uint256:
+>     loan: Loan = self.open_loans[addr]
+116c116
+< def repay_amount() -> uint256:
+---
+> def repay_amount(addr: address) -> uint256:
+118a119
+>     @param addr Address to lookup
+121c122
+<     return self._repay_amount()
+---
+>     return self._repay_amount(addr)
+143c144
+<     self.open_loan = Loan({liquidation_price: liq_price, deposit_amount: quantity})
+---
+>     self.open_loans[msg.sender] = Loan({liquidation_price: liq_price, deposit_amount: quantity})
+146a148,168
+> 
+> 
+> @external
+> def repay():
+>     """
+>     @notice Repay loan in full
+>     @dev Will revert if user lacks approvals or the balance to repay in full
+>     """
+>     # Run checks
+>     user: address = msg.sender
+>     assert self.stablecoin.balanceOf(user) >= self._repay_amount(user)
+> 
+>     # Try to transfer stablecoin
+>     self.stablecoin.transferFrom(user, self, self._repay_amount(user))
+> 
+>     # Clear out the loan
+>     quantity: uint256 = self.open_loans[user].deposit_amount
+>     self.open_loans[user] = Loan({liquidation_price: 0, deposit_amount: 0})
+> 
+>     # Return the user's collateral
+>     self.lending_token.transfer(user, quantity)

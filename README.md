@@ -27,4 +27,8 @@ Each lesson (except the first) will also contain two diff files, representing th
 * [Lesson 6: Import](/lesson-06-import)
 * [Lesson 7: Scope](/lesson-07-scope)
 * [Lesson 8: Math](/lesson-08-math)
-* [Lesson 9: Struct](/lesson-08-struct)
+* [Lesson 9: Struct](/lesson-09-struct)
+* [Lesson 10: HashMap](/lesson-10-hashmap)
+
+
+
