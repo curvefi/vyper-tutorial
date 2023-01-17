@@ -1,0 +1,44 @@
+27a28,30
+> event Liquidation:
+>     user: address
+>     loan: Loan
+28a32
+> 
+88a93,98
+> @internal
+> @view
+> def _can_liquidate(user: address) -> bool:
+>     return self._price_usd() < self.open_loans[user].liquidation_price
+> 
+> 
+124a135,145
+> @external
+> @view
+> def can_liquidate(user: address) -> bool:
+>     """
+>     @notice Is user subject to liquidation?
+>     @param user Address of user to check
+>     @return bool True if up for liquidation
+>     """
+>     return self._can_liquidate(user)
+> 
+> 
+168a190,207
+> 
+> 
+> @external
+> def liquidate(user: address):
+>     """
+>     @notice Liquidate a user if token price drops below liquidation price
+>     @param user Address to be liquidated
+>     """
+>     # Verify price is below liquidation
+>     assert self._can_liquidate(user)
+> 
+>     # Clear out loan data
+>     log Liquidation(user, self.open_loans[user])
+>     self.open_loans[user] = Loan({liquidation_price: 0, deposit_amount: 0})
+> 
+>     # Liquidate
+>     transfer_val: uint256 = self.open_loans[user].deposit_amount
+>     self.lending_token.transfer(msg.sender, transfer_val)

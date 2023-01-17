@@ -1,0 +1,44 @@
+diff --color ../lesson-10-hashmap/solved/tests/test_withdraw.py unsolved/tests/test_withdraw.py
+65a66,107
+> 
+> def test_liquidate_event(minter, accounts, is_forked, token, crv):
+>     if not is_forked:
+>         pytest.skip()
+>     quantity = 10**18
+> 
+>     user = accounts[1]
+>     crv._mint_for_testing(user, quantity)
+> 
+>     init_crv = crv.balanceOf(user)
+>     init_token = token.balanceOf(user)
+>     expected = minter.get_dy(quantity)
+> 
+>     crv.approve(minter, quantity, {"from": user})
+>     minter.mint(quantity, {"from": user})
+> 
+>     oracle = Contract(minter.crv_eth_oracle())
+>     init_price = minter.price_usd()
+>     target_bal = oracle.balances(1) 
+>     crv._mint_for_testing(accounts[0], target_bal)
+>     crv.approve(oracle, 2 ** 256 - 1, {'from': accounts[0]})
+>     oracle.add_liquidity([0, target_bal], 0, {'from': accounts[0]})
+> 
+>     i = 0
+>     lp = Contract('0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d')
+> 
+>     while minter.can_liquidate(accounts[1]) == False:
+>         i += 1
+>         crv._mint_for_testing(accounts[0], target_bal)
+>         oracle.exchange(1, 0, target_bal, 0, {'from': accounts[0]})
+>         chain.mine(timedelta=60 * 60 * 24 )
+> 
+>         if i == 50:
+>             assert False, "Could not manipulate price"
+>     
+>     loan_info = minter.open_loans(accounts[1])
+>     assert loan_info[0] > 0
+>     assert loan_info[1] > 0
+> 
+>     tx = minter.liquidate(accounts[1], {'from': accounts[0]})
+>     assert tx.events['Liquidation']['user'] == accounts[1]
+>     assert tx.events['Liquidation']['loan'] == loan_info
