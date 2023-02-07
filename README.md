@@ -30,3 +30,4 @@ Each lesson (except the first) will also contain two diff files, representing th
 * [Lesson 9: Struct](/lesson-09-struct)
 * [Lesson 10: HashMap](/lesson-10-hashmap)
 * [Lesson 11: Event](/lesson-11-event)
+* [Lesson 12: Dynamic Array](/lesson-12-dynarray)

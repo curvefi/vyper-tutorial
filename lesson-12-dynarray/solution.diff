@@ -1,0 +1,173 @@
+23a24,25
+> MAX_BANDS: constant(uint256) = 10
+> 
+25,26c27,28
+<     liquidation_price: uint256
+<     deposit_amount: uint256
+---
+>     liquidation_range: DynArray[uint256, MAX_BANDS]
+>     deposit_amounts: DynArray[uint256, MAX_BANDS]
+81,83c83,85
+< def _get_dy(quantity: uint256) -> uint256:
+<     liq_price: uint256 = self._price_usd() * self.collateral_pct / 10 ** 18
+<     return quantity * liq_price / 10 ** 18
+---
+> def _get_dy(quantity: uint256, bands: uint256) -> uint256:
+>     ranges: DynArray[uint256[2], MAX_BANDS] = self._liquidity_distribution(quantity, bands)  
+>     return_value: uint256 = 0
+84a87,88
+>     for i in ranges:
+>         return_value += i[0] * i[1]
+85a90,92
+>     return return_value / 10 ** 18
+> 
+> 
+90c97
+<     return loan.liquidation_price * loan.deposit_amount / 10 ** 18
+---
+>     repay_amount: uint256 = 0
+91a99,102
+>     for i in range(MAX_BANDS):
+>         if i >= len(loan.liquidation_range):
+>             break
+>         repay_amount += loan.liquidation_range[i] * loan.deposit_amounts[i]
+92a104,106
+>     return repay_amount / 10 ** 18
+> 
+> 
+94a109,164
+> def _deposit_amount(addr: address) -> uint256:
+>     loan: Loan = self.open_loans[addr]
+>     deposit_amount: uint256 = 0
+> 
+>     for i in range(MAX_BANDS):
+>         if i >= len(loan.liquidation_range):
+>             break
+>         deposit_amount += loan.deposit_amounts[i]
+> 
+>     return deposit_amount
+> 
+> 
+> @internal
+> @view
+> def _liquidity_distribution(quantity: uint256, bands: uint256) -> DynArray[uint256[2], MAX_BANDS]:
+>     amount_per_band: uint256 = quantity / bands
+>     total_quantity: uint256 = quantity
+>     liq_price: uint256 = 0
+>     collateral_amount: uint256 = 0
+>     price_usd: uint256 = self._price_usd()
+> 
+>     return_array: DynArray[uint256[2], MAX_BANDS] = []
+>     for i in range(MAX_BANDS):
+>         if i >= bands:
+>             break
+> 
+>         liq_price = price_usd * self.collateral_pct * (i + 1) / bands / 10 ** 18
+> 
+>         if amount_per_band > total_quantity:
+>             collateral_amount = total_quantity
+>             total_quantity = 0
+>         else:
+>             collateral_amount = amount_per_band
+>             total_quantity -= amount_per_band
+>         return_array.append([liq_price, collateral_amount]) 
+>     
+>     return return_array 
+> 
+> 
+> 
+> @internal
+> @view
+> def _bands_for_liquidation(user: address) -> DynArray[uint256, MAX_BANDS]:
+>     ret_array: DynArray[uint256, MAX_BANDS] = []
+>     for i in range(MAX_BANDS):
+>         if i >= len(self.open_loans[user].liquidation_range):
+>             break
+> 
+>         if self._price_usd() < self.open_loans[user].liquidation_range[i]:
+>             if self.open_loans[user].deposit_amounts[i] > 0:
+>                 ret_array.append(i)
+>     return ret_array
+> 
+> 
+> @internal
+> @view
+96c166,168
+<     return self._price_usd() < self.open_loans[user].liquidation_price
+---
+>     if len(self._bands_for_liquidation(user)) > 0:
+>         return True
+>     return False
+115c187
+< def get_dy(quantity: uint256) -> uint256:
+---
+> def get_dy(quantity: uint256, bands: uint256) -> uint256:
+118a191
+>     @param bands Number of liquidity bands to use 
+121c194
+<     return self._get_dy(quantity)
+---
+>     return self._get_dy(quantity, bands)
+151c224
+< def mint(quantity: uint256):
+---
+> def mint(quantity: uint256, bands: uint256):
+154a228
+>     @param bands Number of bands
+159c233,235
+< 
+---
+>     assert bands > 0, "Must have one band"
+>     assert bands <= MAX_BANDS, "Too many bands"
+>     
+164,165c240,241
+<     liq_price: uint256 = self._price_usd() * self.collateral_pct / 10 ** 18
+<     self.open_loans[msg.sender] = Loan({liquidation_price: liq_price, deposit_amount: quantity})
+---
+>     liq_prices: DynArray[uint256, MAX_BANDS] = []
+>     collateral_amounts: DynArray[uint256, MAX_BANDS] = []
+166a243,258
+>     distribution: DynArray[uint256[2], MAX_BANDS] = self._liquidity_distribution(quantity, bands)
+>     
+>     mint_amt: uint256 = 0
+> 
+>     for i in range(MAX_BANDS):
+>         if i >= len(distribution):
+>             break
+> 
+>         liq_prices.append(distribution[i][0])
+>         collateral_amounts.append(distribution[i][1])
+>         mint_amt += distribution[i][0] * distribution[i][1]
+> 
+>     self.open_loans[msg.sender] = Loan({
+>             liquidation_range: liq_prices, 
+>             deposit_amounts: collateral_amounts})
+>     
+168c260
+<     self.stablecoin.mint(msg.sender, self._get_dy(quantity))
+---
+>     self.stablecoin.mint(msg.sender, mint_amt / 10 ** 18) 
+185,186c277,278
+<     quantity: uint256 = self.open_loans[user].deposit_amount
+<     self.open_loans[user] = Loan({liquidation_price: 0, deposit_amount: 0})
+---
+>     quantity: uint256 = self._deposit_amount(user)
+>     self.open_loans[user] = Loan({liquidation_range: [], deposit_amounts: []})
+197a290
+> 
+199c292,293
+<     assert self._can_liquidate(user)
+---
+>     liquidation_bands: DynArray[uint256, MAX_BANDS] = self._bands_for_liquidation(user)
+>     assert len(liquidation_bands) > 0
+203,204c297,301
+<     self.open_loans[user] = Loan({liquidation_price: 0, deposit_amount: 0})
+< 
+---
+>     transfer_val: uint256 = 0
+>     for i in liquidation_bands:
+>         transfer_val += self.open_loans[user].deposit_amounts[i]
+>         self.open_loans[user].deposit_amounts[i] = 0
+>         
+206d302
+<     transfer_val: uint256 = self.open_loans[user].deposit_amount

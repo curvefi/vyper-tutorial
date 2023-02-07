@@ -1,0 +1,75 @@
+diff --color ../lesson-11-event/solved/tests/test_minter.py unsolved/tests/test_minter.py
+19c19
+<     dy = minter.get_dy(quantity)
+---
+>     dy = minter.get_dy(quantity, 10)
+21c21
+<     minter.mint(quantity, {"from": accounts[0]})
+---
+>     minter.mint(quantity, 10, {"from": accounts[0]})
+31,33c31,32
+<     dy = minter.get_dy(quantity)
+< 
+<     minter.mint(quantity, {"from": accounts[0]})
+---
+>     dy = minter.get_dy(quantity, 10)
+>     minter.mint(quantity, 10, {"from": accounts[0]})
+65c64
+<     minter.mint(10**18, {"from": accounts[0]})
+---
+>     minter.mint(10**18, 10, {"from": accounts[0]})
+66a66,76
+> 
+> 
+> def test_minter_bands_zero_fails(token, crv, accounts, minter):
+>     with brownie.reverts("Must have one band"):
+>         minter.mint(10 ** 18, 0, {'from': accounts[0]})
+> 
+> 
+> def test_minter_bands_too_high_fails(token, crv, accounts, minter):
+>     with brownie.reverts("Too many bands"):
+>         minter.mint(10 ** 18, 11, {'from': accounts[0]})
+> 
+diff --color ../lesson-11-event/solved/tests/test_withdraw.py unsolved/tests/test_withdraw.py
+22c22
+<     minter.mint(quantity, {"from": accounts[0]})
+---
+>     minter.mint(quantity, 1, {"from": accounts[0]})
+33c33
+<     minter.mint(quantity, {"from": accounts[0]})
+---
+>     minter.mint(quantity, 1, {"from": accounts[0]})
+36c36
+<     assert round(minter.open_loans(accounts[0])[0] / 10**18, 5) == round(
+---
+>     assert round(minter.open_loans(accounts[0])[0][0] / 10**18, 5) == round(
+41c41
+<     assert minter.open_loans(accounts[0])[1] == quantity
+---
+>     assert minter.open_loans(accounts[0])[1][0] == quantity
+54c54
+<     expected = minter.get_dy(quantity)
+---
+>     expected = minter.get_dy(quantity, 1)
+57c57
+<     minter.mint(quantity, {"from": user})
+---
+>     minter.mint(quantity, 1, {"from": user})
+63d62
+< 
+66a66
+> 
+77c77
+<     expected = minter.get_dy(quantity)
+---
+>     expected = minter.get_dy(quantity, 1)
+80c80
+<     minter.mint(quantity, {"from": user})
+---
+>     minter.mint(quantity, 1, {"from": user})
+102,103c102,103
+<     assert loan_info[0] > 0
+<     assert loan_info[1] > 0
+---
+>     assert loan_info[0][0] > 0
+>     assert loan_info[1][0] > 0
