@@ -1,0 +1,7 @@
+vyper>=0.4.1
+titanoboa>=0.2.6
+web3
+
+# Style
+mamushi>=0.0.4
+ruff>=0.11.2
