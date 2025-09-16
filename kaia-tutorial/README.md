@@ -1,6 +1,6 @@
-<img width="860" alt="image" src="https://github.com/user-attachments/assets/62c9e966-698a-4df0-b580-8320617ee824" />
+<img width="1800" height="1013" alt="Kaia Stablecoin Tutorial" src="https://github.com/user-attachments/assets/b3dd645c-293c-4c0e-aa38-6463ab5d8c50" />
 
-# Kaia Stablecoin Tutorial - April 2
+# Kaia Stablecoin Tutorial - September 16, 2025
 
 Presentation:
 * [Presentation](https://docs.google.com/presentation/d/1u1IF_-1YfDW_Ux9DHtcX5oSEt6kVe3o8tyWAwaqnOxk/edit?usp=sharing)
